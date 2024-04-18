@@ -5,13 +5,14 @@
     <meta charset="utf-8" />
     <title>LOGIN</title>
     <link rel="stylesheet" href="login.css" />
+    <script type="text/javascript" src="login.js"></script>
   </head>
   <body>
     <h1>Login</h1>
     <form>
-      ID : <input class="login_inputs" type="text" /><br />
+      ID : <input id="txt_id" class="login_inputs" type="text" /><br />
       PW : <input class="login_inputs" type="password" /> <br />
-      <input id="btn-login" type="button" value="login" />
+      <input id="btn-login" type="button" value="login" onclick="popId()" />
     </form>
   </body>
 </html>
