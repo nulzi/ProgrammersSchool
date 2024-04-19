@@ -1,6 +1,7 @@
 const fs = require("fs");
 const main_view = fs.readFileSync("./main.html", "utf-8");
 const main_css = fs.readFileSync("./main.css", "utf-8");
+const orderlist_view = fs.readFileSync("./orderlist.html", "utf-8");
 
 const mariadb = require("./database/connect/mariadb");
 
@@ -22,12 +23,38 @@ function mainCss(response) {
   response.end();
 }
 
-function login(response) {
-  console.log("login");
-
+function order(response, productId) {
   response.writeHead(200, { "Content-Type": "text/html" });
-  response.write("Login page");
+
+  mariadb.query(
+    `insert into orderlist values ("${productId}","${new Date().toLocaleDateString()}")`,
+    function (err, rows) {
+      console.log(rows);
+    }
+  );
+
+  response.write(
+    '<a href="/">go home</a><br><a href="/orderlist">order list</a>'
+  );
   response.end();
+}
+
+function orderlist(response) {
+  response.writeHead(200, { "Content-Type": "text/html" });
+
+  mariadb.query(`select * from orderlist`, function (err, rows) {
+    response.write(orderlist_view);
+
+    rows.forEach((el) => {
+      response.write(`<tr>
+      <td>${el.product_id}</td>
+      <td>${el.order_data}</td>
+      </tr>`);
+    });
+
+    response.write("</table>");
+    response.end();
+  });
 }
 
 function favicon(response) {
@@ -59,7 +86,8 @@ function racket3(response) {
 let handle = {};
 handle["/"] = main;
 handle["/main.css"] = mainCss;
-handle["/login"] = login;
+handle["/order"] = order;
+handle["/orderlist"] = orderlist;
 handle["/favicon.ico"] = favicon;
 
 // image directory
