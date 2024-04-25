@@ -21,6 +21,12 @@ const book3 = {
   description: "boldmort",
 };
 
+app.get("/query", function (req, res) {
+  const query = req.query;
+
+  console.log(query);
+});
+
 app.get("/:nickname", function (req, res) {
   const { nickname } = req.params;
 
