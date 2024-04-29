@@ -9,7 +9,7 @@ app.get("/", function (req, res) {
 let nodejsBook = {
   title: "Node.js를 공부해보자",
   price: 20000,
-  description: "이 책 좋음 왜? 김송아가 지음",
+  description: "이 책을 활용하면 Node.js를 마스터 할 수 있음",
 };
 
 app.get("/products/1", function (req, res) {

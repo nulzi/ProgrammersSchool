@@ -3,8 +3,8 @@ const app = express();
 
 app.listen(1234);
 
-app.get("/products/:n", function (req, res) {
+app.get("/products/:id", function (req, res) {
   res.json({
-    num: req.params.n,
+    num: req.params.id,
   });
 });
