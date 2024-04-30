@@ -28,9 +28,21 @@ db.set(2, book2);
 db.set(3, book3);
 
 app.get("/books", (req, res) => {
-  res.json({
-    say: "test",
-  });
+  // 1. Object.fromEntries()로 Map을 Object로 변환
+  console.log(Object.fromEntries(db));
+  res.json(Object.fromEntries(db));
+  // console.log(JSON.stringify(Object.fromEntries(db)));
+  // res.json(JSON.stringify(Object.fromEntries(db)));
+
+  // 2. 새로운 객체 books에 db.forEach()를 통해 키-값 추가
+  // const books = {};
+  // db.forEach((v, k) => {
+  //   books[k] = v;
+  // });
+  // console.log(books);
+  // res.json(books);
+  // console.log(JSON.stringify(books));
+  // res.json(JSON.stringify(books));
 });
 
 app.get("/books/:id", function (req, res) {
