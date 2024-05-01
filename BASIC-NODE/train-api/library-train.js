@@ -30,21 +30,27 @@ db.set(3, book3);
 
 // GET 전체 조회
 app.get("/books", (req, res) => {
-  // 1. Object.fromEntries()로 Map을 Object로 변환
-  // console.log(Object.fromEntries(db));
-  res.json(Object.fromEntries(db));
-  // console.log(JSON.stringify(Object.fromEntries(db)));
-  // res.json(JSON.stringify(Object.fromEntries(db)));
+  if (db.size) {
+    // 1. Object.fromEntries()로 Map을 Object로 변환
+    // console.log(Object.fromEntries(db));
+    res.json(Object.fromEntries(db));
+    // console.log(JSON.stringify(Object.fromEntries(db)));
+    // res.json(JSON.stringify(Object.fromEntries(db)));
 
-  // 2. 새로운 객체 books에 db.forEach()를 통해 키-값 추가
-  // const books = {};
-  // db.forEach((v, k) => {
-  //   books[k] = v;
-  // });
-  // console.log(books);
-  // res.json(books);
-  // console.log(JSON.stringify(books));
-  // res.json(JSON.stringify(books));
+    // 2. 새로운 객체 books에 db.forEach()를 통해 키-값 추가
+    // const books = {};
+    // db.forEach((v, k) => {
+    //   books[k] = v;
+    // });
+    // console.log(books);
+    // res.json(books);
+    // console.log(JSON.stringify(books));
+    // res.json(JSON.stringify(books));
+  } else {
+    res.status(404).json({
+      message: "there is no data",
+    });
+  }
 });
 
 // GET id로 개별 조회
@@ -59,7 +65,7 @@ app.get("/books/:id", function (req, res) {
       ...book,
     });
   } else {
-    res.json({
+    res.status(404).json({
       message: `there is no ${id} data`,
     });
   }
@@ -67,13 +73,20 @@ app.get("/books/:id", function (req, res) {
 
 // POST 책 하나 등록(생성)
 app.post("/book", (req, res) => {
-  const id = db.size + 1;
-  db.set(id, req.body);
+  const name = req.body.name;
+  if (name) {
+    const id = db.size + 1;
+    db.set(id, req.body);
 
-  res.json({
-    message: `add new book ${db.get(id).name}`,
-    ...req.body,
-  });
+    res.status(201).json({
+      message: `add new book ${db.get(id).name}`,
+      ...req.body,
+    });
+  } else {
+    res.status(400).json({
+      message: "plz check your data that you want to add",
+    });
+  }
 });
 
 // DELETE id로 개별 삭제
@@ -88,7 +101,7 @@ app.delete("/books/:id", (req, res) => {
       message: `delete book ${removed.name}`,
     });
   } else {
-    res.json({
+    res.status(404).json({
       message: `there is no data ${id}`,
     });
   }
@@ -96,18 +109,17 @@ app.delete("/books/:id", (req, res) => {
 
 // DELETE 전체 삭제
 app.delete("/books", (req, res) => {
-  let message = "";
-
   if (!db.size) {
-    message = "database is already empty";
+    res.status(404).json({
+      message: "database is already empty",
+    });
   } else {
     db.clear();
 
-    message = "database is empty";
+    res.json({
+      message: "database is empty",
+    });
   }
-  res.json({
-    message: message,
-  });
 });
 
 // PUT id로 개별 수정
@@ -118,11 +130,11 @@ app.put("/books/:id", (req, res) => {
   const before = db.get(id);
   const { newName } = req.body;
   if (!before) {
-    res.json({
+    res.status(404).json({
       message: `there is no data ${id}`,
     });
   } else if (before.name === newName) {
-    res.json({
+    res.status(404).json({
       message: `there is no change`,
     });
   } else {
