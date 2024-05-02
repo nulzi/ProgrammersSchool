@@ -15,13 +15,15 @@ app.post("/login", (req, res) => {
   const { id, pw } = req.body;
   const user = db.get(id);
 
-  if (user) {
+  // id와 pw를 틀린 경우를 따로 알려줄 경우 id의 존재 여부를
+  // 확인할 수 있어서 따로 알려줄 필요가 없다.
+  if (user && user.pw === pw) {
     res.status(201).json({
       message: `Have a nice day ${user.name}`,
     });
   } else {
     res.status(400).json({
-      message: `not our librarian. plz sign up first`,
+      message: `Not our librarian. plz sign up first or Wrong id, pw. plz check your id, pw`,
     });
   }
 });
@@ -47,37 +49,36 @@ app.post("/signup", (req, res) => {
   }
 });
 
-// select
-app.get("/librarians/:id", (req, res) => {
-  let { id } = req.params;
-  parseInt(id);
-  const user = db.get(id);
+app
+  .route("/librarians/:id")
+  .get((req, res) => {
+    let { id } = req.params;
+    parseInt(id);
+    const user = db.get(id);
 
-  if (user) {
-    res.json({
-      id: user.id,
-      name: user.name,
-    });
-  } else {
-    res.status(400).json({
-      message: `there is no ${id} librarian`,
-    });
-  }
-});
+    if (user) {
+      res.json({
+        id: user.id,
+        name: user.name,
+      });
+    } else {
+      res.status(400).json({
+        message: `there is no ${id} librarian`,
+      });
+    }
+  })
+  .delete((req, res) => {
+    let { id } = req.params;
+    parseInt(id);
+    const before = db.get(id);
 
-// delete
-app.delete("/librarians/:id", (req, res) => {
-  let { id } = req.params;
-  parseInt(id);
-  const before = db.get(id);
-
-  if (db.delete(id)) {
-    res.json({
-      message: `goodbye ${before.name}`,
-    });
-  } else {
-    res.status(400).json({
-      message: `there is no ${id} librarian or already leave out library`,
-    });
-  }
-});
+    if (db.delete(id)) {
+      res.json({
+        message: `goodbye ${before.name}`,
+      });
+    } else {
+      res.status(400).json({
+        message: `there is no ${id} librarian or already leave out library`,
+      });
+    }
+  });
