@@ -5,7 +5,7 @@
   "main": "user-prac.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon ./book-prac.js"
+    "dev": "nodemon ./app.js"
   },
   "author": "",
   "license": "ISC",
