@@ -1,49 +1,57 @@
 const express = require("express");
 const router = express.Router();
+const mariadb = require("../mariadb");
 
 router.use(express.json());
-
-let db = new Map();
 
 router.get("/", (req, res) => {
   res.send("Main");
 });
 
-// login
 router.post("/login", (req, res) => {
-  const { userId, pw } = req.body;
-  const user = db.get(userId);
+  const { email, pw } = req.body;
+  const sql = "SELECT name FROM librarians WHERE email=? AND pw=?"; // Q. email과 pw를 한번에 검색하면 안 되는건가?
+  const values = [email, pw];
 
-  // id와 pw를 틀린 경우를 따로 알려줄 경우 id의 존재 여부를
-  // 확인할 수 있어서 따로 알려줄 필요가 없다.
-  if (user && user.pw === pw) {
-    res.status(201).json({
-      message: `Have a nice day ${user.name}`,
-    });
-  } else {
-    res.status(400).json({
-      message: `Not our librarian. plz sign up first or Wrong id, pw. plz check your id, pw`,
-    });
-  }
+  mariadb.query(sql, values, (_, results) => {
+    const loginUser = results[0];
+
+    if (loginUser) {
+      res.status(200).json({
+        message: `Have a nice day ${loginUser.name}`,
+      });
+    } else {
+      // id와 pw를 틀린 경우를 따로 알려줄 경우 id의 존재 여부를
+      // 확인할 수 있어서 따로 알려줄 필요가 없다.
+      res.status(400).json({
+        message: `Not our librarian. plz sign up first or Wrong email, pw. plz check your email, pw`,
+      });
+    }
+  });
 });
 
-// sign up
 router.post("/signup", (req, res) => {
-  const { userId, pw, name } = req.body;
-  const user = db.get(userId);
-
-  if (user) {
-    res.status(403).json({
-      message: `already exist id plz use other id`,
-    });
-  } else if (userId && pw && name) {
-    db.set(userId, req.body);
-    res.status(201).json({
-      message: `Welcome new librarian ${db.get(userId).name}`,
+  if (req.body == {}) {
+    res.status(400).json({
+      message: `plz enter all data email, pw, name`,
     });
   } else {
-    res.status(400).json({
-      message: `plz enter all data id, pw, name`,
+    const { email, pw, name, ph_num } = req.body;
+    const sql =
+      "INSERT INTO librarians (email,pw,name,ph_num) VALUES (?,?,?,?)";
+    const values = [email, pw, name, ph_num];
+
+    mariadb.query(sql, values, (err) => {
+      if (err?.code === "ER_DUP_ENTRY") {
+        // email 중복 시 가입하지 못하게 막기
+        res.status(403).json({
+          message: `already exist id plz use other email`,
+        });
+      } else {
+        res.status(201).json({
+          message: `Welcome new librarian ${name}`,
+        });
+      }
     });
   }
 });
@@ -51,31 +59,46 @@ router.post("/signup", (req, res) => {
 router
   .route("/librarians")
   .get((req, res) => {
-    let { userId } = req.body;
-    const user = db.get(userId);
+    const { email } = req.body;
+    const sql = "SELECT * FROM librarians WHERE email = ?"; // `SELECT * FROM librarians WHERE email = "${email}"`
 
-    if (user) {
-      res.status(200).json({
-        userId: user.userId,
-        name: user.name,
-      });
-    } else {
-      res.status(400).json({
-        message: `there is no ${userId} librarian`,
-      });
-    }
+    mariadb.query(sql, email, (_, results) => {
+      const user = results[0];
+
+      if (user) {
+        res.status(200).json({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          ph_num: user.ph_num,
+        });
+      } else {
+        res.status(400).json({
+          message: `there is no ${email} librarian`,
+        });
+      }
+    });
   })
   .delete((req, res) => {
-    let { userId } = req.body;
-    const before = db.get(userId);
+    let { email } = req.body;
 
-    if (db.delete(userId)) {
-      res.status(200).json({
-        message: `goodbye ${before.name}`,
+    if (email) {
+      const sql = "DELETE FROM librarians WHERE email=?";
+
+      mariadb.query(sql, email, (_, results) => {
+        if (results.affectedRows) {
+          res.status(200).json({
+            message: `goodbye ${email}`,
+          });
+        } else {
+          res.status(400).json({
+            message: `there is no ${email} librarian or already leave out library`,
+          });
+        }
       });
     } else {
       res.status(400).json({
-        message: `there is no ${userId} librarian or already leave out library`,
+        message: `plz enter the email what you want to remove`,
       });
     }
   });
