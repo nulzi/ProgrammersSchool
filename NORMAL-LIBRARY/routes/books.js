@@ -5,29 +5,29 @@ const { body, param, validationResult } = require("express-validator");
 
 router.use(express.json());
 
-const validate = (req, res) => {
+const validate = (req, res, next) => {
   const err = validationResult(req);
 
-  if (!err.isEmpty()) {
-    return res.status(400).json(err.array());
+  if (err.isEmpty()) {
+    return next();
   }
+
+  return res.status(400).json(err.array());
 };
 
 router
   .route("/")
   .get(
-    body("librarianId")
-      .notEmpty()
-      .withMessage(`plz enter the librarian_id(int)`)
-      .isInt()
-      .withMessage(`librarian id type is int. plz check your input`),
+    [
+      body("librarianId")
+        .notEmpty()
+        .withMessage(`plz enter the librarian_id(int)`)
+        .isInt()
+        .withMessage(`librarian id type is int. plz check your input`),
+      validate,
+    ],
     (req, res) => {
-      const err = validationResult(req);
       const { librarianId } = req.body;
-
-      if (!err.isEmpty()) {
-        return res.status(400).json(err.array());
-      }
       const sql = "SELECT * FROM books WHERE librarian_id = ?";
 
       mariadb.query(sql, librarianId, (err, results) => {
@@ -54,16 +54,10 @@ router
         .withMessage(`plz enter the name(string)`)
         .isString()
         .withMessage(`name type is string. plz check your input`),
+      validate,
     ],
     (req, res) => {
-      const err = validationResult(req);
-
-      if (!err.isEmpty()) {
-        return res.status(400).json(err.array());
-      }
-
       const { name, publisher, publishDate, librarianId } = req.body;
-
       const sql =
         "INSERT INTO books (name, publisher, publish_date, librarian_id) VALUES (?,?,?,?)";
       const values = [name, publisher, publishDate, librarianId];
@@ -92,30 +86,27 @@ router
 
 router
   .route("/:id")
-  .get(param("id").notEmpty().withMessage("need book id"), (req, res) => {
-    const err = validationResult(req);
+  .get(
+    [param("id").notEmpty().withMessage("need book id"), validate],
+    (req, res) => {
+      const { id } = req.params;
+      const sql = "SELECT * FROM books WHERE id = ?";
 
-    if (!err.isEmpty()) {
-      return res.status(400).json(err.array());
+      mariadb.query(sql, id, (err, results) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).end();
+        }
+
+        const book = results[0];
+
+        if (book) {
+          return res.status(200).json(book);
+        }
+        notFoundRes(res, `there is no id:${id} book`);
+      });
     }
-
-    const { id } = req.params;
-    const sql = "SELECT * FROM books WHERE id = ?";
-
-    mariadb.query(sql, id, (err, results) => {
-      if (err) {
-        console.log(err);
-        return res.status(400).end();
-      }
-
-      const book = results[0];
-
-      if (book) {
-        return res.status(200).json(book);
-      }
-      notFoundRes(res, `there is no id:${id} book`);
-    });
-  })
+  )
   .put(
     [
       param("id").notEmpty().withMessage("need book id"),
@@ -166,7 +157,7 @@ router
     }
   )
   .delete(
-    [param("id").notEmpty().toInt().withMessage("need book id"), validate],
+    [param("id").notEmpty().isInt().withMessage("need book id"), validate],
     (req, res) => {
       const { id } = req.params;
       const sql = "DELETE FROM books WHERE id = ?";
