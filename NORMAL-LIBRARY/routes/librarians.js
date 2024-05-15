@@ -53,17 +53,24 @@ router.post(
       if (loginUser) {
         const token = jwt.sign(
           { email: loginUser.email, name: loginUser.name },
-          process.env.PRIVATE_KEY
+          process.env.PRIVATE_KEY,
+          {
+            expiresIn: "5m",
+            issuer: "nulzi",
+          }
         );
+
+        res.cookie("token", token, {
+          httpOnly: true,
+        });
 
         return res.status(200).json({
           message: `Have a nice day ${loginUser.name}`,
-          token: token,
         });
       }
       // id와 pw를 틀린 경우를 따로 알려줄 경우 id의 존재 여부를
       // 확인할 수 있어서 따로 알려줄 필요가 없다.
-      res.status(400).json({
+      res.status(403).json({
         message: `Not our librarian. plz sign up first or Wrong email, pw. plz check your email, pw`,
       });
     });
