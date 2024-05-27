@@ -3,9 +3,10 @@ const { StatusCodes } = require("http-status-codes");
 
 const getBookList = (req, res) => {
   const { categoryId, isNew, limit, pages } = req.query;
-  let sql = `SELECT *, categories.name AS category_name
-  FROM books LEFT JOIN categories
-  ON books.category_id = categories.id`;
+  let sql = `SELECT *,
+  (SELECT name FROM categories WHERE id = books.category_id) AS category_name,
+  (SELECT count(*) FROM likes WHERE books.id = liked_book_id) AS likes
+  FROM books`;
   const offset = limit * (pages - 1);
   const values = [];
 
@@ -40,9 +41,15 @@ const getBookList = (req, res) => {
 
 const getBook = (req, res) => {
   const { bookId } = req.params;
-  const sql = `SELECT *, categories.name AS category_name FROM books LEFT JOIN categories ON books.category_id = categories.id WHERE books.id = ?`;
+  const { userId } = req.body;
+  const sql = `SELECT *, 
+  (SELECT name FROM categories WHERE id = books.category_id) AS category_name,
+  (SELECT count(*) FROM likes WHERE books.id = liked_book_id) AS likes,
+  (SELECT EXISTS (SELECT * FROM likes WHERE user_id = ? AND liked_book_id = ?)) AS is_like
+  FROM books WHERE books.id = ?`;
+  const values = [userId, bookId, bookId];
 
-  mariadb.query(sql, bookId, (err, results) => {
+  mariadb.query(sql, values, (err, results) => {
     if (err) {
       console.log(err);
       return res.status(StatusCodes.BAD_REQUEST).end();
