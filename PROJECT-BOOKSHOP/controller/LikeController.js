@@ -13,14 +13,10 @@ const addLike = (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).end();
     }
 
-    if (results.affectedRows) {
-      // 좋아요
-      return res.status(StatusCodes.OK).json({
-        message: "좋아요 success",
-      });
-    }
-
-    res.status(StatusCodes.BAD_REQUEST).end();
+    // 좋아요
+    return res.status(StatusCodes.OK).json({
+      message: "좋아요 success",
+    });
   });
 };
 
