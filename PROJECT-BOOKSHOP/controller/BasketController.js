@@ -12,9 +12,7 @@ const addBasket = (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).end();
     }
     // 장바구니 담기
-    res.status(StatusCodes.OK).json({
-      message: "장바구니 담기 success",
-    });
+    res.status(StatusCodes.OK).end();
   });
 };
 
