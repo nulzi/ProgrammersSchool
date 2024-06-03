@@ -1,9 +1,13 @@
 const mariadb = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
+const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
+
+dotenv.config();
 
 const addLike = (req, res) => {
   const { bookId } = req.params;
-  const { userId } = req.body;
+  const userId = decodeUserId(req);
   const sql = `INSERT INTO likes (user_id, liked_book_id) VALUES (?,?)`;
   const values = [userId, bookId];
 
@@ -22,7 +26,7 @@ const addLike = (req, res) => {
 
 const cancelLike = (req, res) => {
   const { bookId } = req.params;
-  const { userId } = req.body;
+  const userId = decodeUserId(req);
   const sql = `DELETE FROM likes WHERE user_id = ? AND liked_book_id = ?`;
   const values = [userId, bookId];
 
@@ -41,6 +45,13 @@ const cancelLike = (req, res) => {
 
     res.status(StatusCodes.BAD_REQUEST).end();
   });
+};
+
+const decodeUserId = (req) => {
+  const token = req.headers.authorization;
+  const userId = jwt.verify(token, process.env.PRIVATE_KEY).userId;
+
+  return userId;
 };
 
 module.exports = { addLike, cancelLike };

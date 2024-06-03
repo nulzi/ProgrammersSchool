@@ -42,9 +42,9 @@ const login = (req, res) => {
 
     if (loginUser && loginUser.password == hashPassword) {
       const token = jwt.sign(
-        { email: loginUser.email },
+        { email: loginUser.email, userId: loginUser.id },
         process.env.PRIVATE_KEY,
-        { expiresIn: "30m", issuer: "nulzi" }
+        { expiresIn: "5m", issuer: "nulzi" }
       );
 
       res.cookie("token", token, {

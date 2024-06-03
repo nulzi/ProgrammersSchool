@@ -1,8 +1,26 @@
 const mariadb = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
+const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
+
+dotenv.config();
 
 const addBasket = (req, res) => {
-  const { bookId, quantity, userId } = req.body;
+  const { bookId, quantity } = req.body;
+  const userId = decodeUserId(req, res);
+
+  if (userId instanceof jwt.TokenExpiredError) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      message: "로그인 세션 만료됨.",
+    });
+  }
+
+  if (userId instanceof jwt.JsonWebTokenError) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: "토큰이 이상합니다. 확인해주세요",
+    });
+  }
+
   const sql = `INSERT INTO baskets (book_Id, quantity, user_id) VALUES (?,?,?)`;
   const values = [bookId, quantity, userId];
 
@@ -17,9 +35,23 @@ const addBasket = (req, res) => {
 };
 
 const getBasketList = (req, res) => {
-  const { userId, selected } = req.body;
+  const { selected } = req.body;
+  const userId = decodeUserId(req, res);
+
+  if (userId instanceof jwt.TokenExpiredError) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      message: "로그인 세션 만료됨.",
+    });
+  }
+
+  if (userId instanceof jwt.JsonWebTokenError) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: "토큰이 이상합니다. 확인해주세요",
+    });
+  }
+
   let sql = `SELECT baskets.id, book_id, title, summary, quantity, price
-  FROM baskets LEFT JOIN books ON baskets.book_id = books.id WHERE user_id = ?`;
+    FROM baskets LEFT JOIN books ON baskets.book_id = books.id WHERE user_id = ?`;
   const values = [userId];
 
   if (selected) {
@@ -33,8 +65,9 @@ const getBasketList = (req, res) => {
       console.log(err);
       return res.status(StatusCodes.BAD_REQUEST).end();
     }
-
-    if (results.length) {
+    if (selected && results.length == selected.length) {
+      return res.status(StatusCodes.OK).json(results);
+    } else if (results.length) {
       // 장바구니 조회
       return res.status(StatusCodes.OK).json(results);
     }
@@ -45,7 +78,20 @@ const getBasketList = (req, res) => {
 
 const removeBasket = (req, res) => {
   const { basketId } = req.params;
-  const { userId } = req.body;
+  const userId = decodeUserId(req, res);
+
+  if (userId instanceof jwt.TokenExpiredError) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      message: "로그인 세션 만료됨.",
+    });
+  }
+
+  if (userId instanceof jwt.JsonWebTokenError) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: "토큰이 이상합니다. 확인해주세요",
+    });
+  }
+
   const sql = `DELETE FROM baskets WHERE id = ? AND user_id = ?`;
   const values = [basketId, userId];
 
@@ -63,6 +109,20 @@ const removeBasket = (req, res) => {
 
     res.status(StatusCodes.UNAUTHORIZED).end();
   });
+};
+
+const decodeUserId = (req, res) => {
+  try {
+    const token = req.headers.authorization;
+    const userId = jwt.verify(token, process.env.PRIVATE_KEY).userId;
+
+    return userId;
+  } catch (err) {
+    console.log(err.name);
+    console.log(err.message);
+
+    return err;
+  }
 };
 
 module.exports = { addBasket, getBasketList, removeBasket };
