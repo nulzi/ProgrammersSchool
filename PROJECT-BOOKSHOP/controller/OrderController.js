@@ -126,33 +126,37 @@ const getOrderList = (req, res) => {
 
 const getOrderDetail = (req, res) => {
   const { orderId } = req.params;
-  const userId = decodeUser(req).userId;
+  const user = decodeUser(req);
 
-  if (userId instanceof jwt.TokenExpiredError) {
+  if (user instanceof jwt.TokenExpiredError) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
       message: "로그인 세션 만료됨.",
     });
-  } else if (userId instanceof jwt.JsonWebTokenError) {
+  } else if (user instanceof jwt.JsonWebTokenError) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: "토큰이 이상합니다. 확인해주세요",
     });
   }
 
-  const sql = `SELECT book_id, title, img, price, author, quantity
-  FROM orderedBook LEFT JOIN books ON book_id = books.id WHERE order_id = ?`;
+  if (user) {
+    const sql = `SELECT book_id, title, img, price, author, quantity
+    FROM orderedBook LEFT JOIN books ON book_id = books.id WHERE order_id = ?`;
 
-  mariadb.query(sql, orderId, (err, results) => {
-    if (err) {
-      console.log(err);
-      return res.status(StatusCodes.BAD_REQUEST).end();
-    }
+    return mariadb.query(sql, orderId, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(StatusCodes.BAD_REQUEST).end();
+      }
 
-    // 주문 상세 상품 조회
-    if (results.length) {
-      return res.status(StatusCodes.OK).json(results);
-    }
-    res.status(StatusCodes.NOT_FOUND).end();
-  });
+      // 주문 상세 상품 조회
+      if (results.length) {
+        return res.status(StatusCodes.OK).json(results);
+      }
+      res.status(StatusCodes.NOT_FOUND).end();
+    });
+  }
+
+  res.status(StatusCodes.UNAUTHORIZED).end();
 };
 
 module.exports = { order, getOrderList, getOrderDetail };
