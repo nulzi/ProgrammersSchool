@@ -12,6 +12,9 @@ const decodeUser = (req) => {
 
       return user;
     }
+    // else {
+    //   throw new ReferenceError("jwt must be provided");
+    // }
 
     return token;
   } catch (err) {
