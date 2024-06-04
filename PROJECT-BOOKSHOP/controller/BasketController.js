@@ -1,21 +1,17 @@
 const mariadb = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
-const dotenv = require("dotenv");
+const { decodeUser } = require("../authorization");
 const jwt = require("jsonwebtoken");
-
-dotenv.config();
 
 const addBasket = (req, res) => {
   const { bookId, quantity } = req.body;
-  const userId = decodeUserId(req, res);
+  const userId = decodeUser(req).userId;
 
   if (userId instanceof jwt.TokenExpiredError) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
       message: "로그인 세션 만료됨.",
     });
-  }
-
-  if (userId instanceof jwt.JsonWebTokenError) {
+  } else if (userId instanceof jwt.JsonWebTokenError) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: "토큰이 이상합니다. 확인해주세요",
     });
@@ -36,15 +32,13 @@ const addBasket = (req, res) => {
 
 const getBasketList = (req, res) => {
   const { selected } = req.body;
-  const userId = decodeUserId(req, res);
+  const userId = decodeUser(req).userId;
 
   if (userId instanceof jwt.TokenExpiredError) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
       message: "로그인 세션 만료됨.",
     });
-  }
-
-  if (userId instanceof jwt.JsonWebTokenError) {
+  } else if (userId instanceof jwt.JsonWebTokenError) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: "토큰이 이상합니다. 확인해주세요",
     });
@@ -78,15 +72,13 @@ const getBasketList = (req, res) => {
 
 const removeBasket = (req, res) => {
   const { basketId } = req.params;
-  const userId = decodeUserId(req, res);
+  const userId = decodeUser(req).userId;
 
   if (userId instanceof jwt.TokenExpiredError) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
       message: "로그인 세션 만료됨.",
     });
-  }
-
-  if (userId instanceof jwt.JsonWebTokenError) {
+  } else if (userId instanceof jwt.JsonWebTokenError) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: "토큰이 이상합니다. 확인해주세요",
     });
@@ -109,20 +101,6 @@ const removeBasket = (req, res) => {
 
     res.status(StatusCodes.UNAUTHORIZED).end();
   });
-};
-
-const decodeUserId = (req, res) => {
-  try {
-    const token = req.headers.authorization;
-    const userId = jwt.verify(token, process.env.PRIVATE_KEY).userId;
-
-    return userId;
-  } catch (err) {
-    console.log(err.name);
-    console.log(err.message);
-
-    return err;
-  }
 };
 
 module.exports = { addBasket, getBasketList, removeBasket };
