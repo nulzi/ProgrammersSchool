@@ -12,6 +12,7 @@ const connection = mysql.createConnection({
   password: process.env.PW,
   database: process.env.DATABASE,
   dateStrings: true,
+  multipleStatements: true,
 });
 
 module.exports = connection;
