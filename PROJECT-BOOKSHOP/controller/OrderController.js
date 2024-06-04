@@ -1,19 +1,15 @@
 const mariadb = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
+const { decodeUser } = require("../authorization");
+const jwt = require("jsonwebtoken");
 
 const order = async (req, res) => {
   const catchError = (error) => {
     res.status(StatusCodes.BAD_REQUEST).end();
     throw error;
   };
-  const {
-    basketItemIds,
-    delivery,
-    totalQuantity,
-    totalPrice,
-    firstBookTitle,
-    userId,
-  } = req.body;
+  const { basketItemIds, delivery, totalQuantity, totalPrice, firstBookTitle } =
+    req.body;
   const mariadbP = require("mysql2/promise");
   const conn = await mariadbP.createConnection({
     host: "localhost",
@@ -23,6 +19,18 @@ const order = async (req, res) => {
     database: process.env.DATABASE,
     dateStrings: true,
   });
+  const userId = decodeUser(req).userId;
+
+  if (userId instanceof jwt.TokenExpiredError) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      message: "로그인 세션 만료됨.",
+    });
+  } else if (userId instanceof jwt.JsonWebTokenError) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: "토큰이 이상합니다. 확인해주세요",
+    });
+  }
+
   let values = [delivery.address, delivery.receiver, delivery.ph_num];
   let results = await addDelivery(conn, values).catch(catchError);
   let deliveryId = results.insertId;
@@ -87,10 +95,20 @@ const deleteSelectedBaskets = async (conn, values) => {
 };
 
 const getOrderList = (req, res) => {
-  const { userId } = req.body;
+  const userId = decodeUser(req).userId;
+
+  if (userId instanceof jwt.TokenExpiredError) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      message: "로그인 세션 만료됨.",
+    });
+  } else if (userId instanceof jwt.JsonWebTokenError) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: "토큰이 이상합니다. 확인해주세요",
+    });
+  }
+
   const sql = `SELECT orders.id, created_at, address, receiver, ph_num, book_title, total_quantity, total_price
   FROM orders LEFT JOIN delivery ON orders.delivery_id = delivery.id WHERE user_id = ?`;
-  // const values = [];
 
   mariadb.query(sql, userId, (err, results) => {
     if (err) {
@@ -108,10 +126,20 @@ const getOrderList = (req, res) => {
 
 const getOrderDetail = (req, res) => {
   const { orderId } = req.params;
-  const { userId } = req.body;
+  const userId = decodeUser(req).userId;
+
+  if (userId instanceof jwt.TokenExpiredError) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      message: "로그인 세션 만료됨.",
+    });
+  } else if (userId instanceof jwt.JsonWebTokenError) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: "토큰이 이상합니다. 확인해주세요",
+    });
+  }
+
   const sql = `SELECT book_id, title, img, price, author, quantity
   FROM orderedBook LEFT JOIN books ON book_id = books.id WHERE order_id = ?`;
-  // const values = [];
 
   mariadb.query(sql, orderId, (err, results) => {
     if (err) {

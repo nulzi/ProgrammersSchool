@@ -1,5 +1,7 @@
 const mariadb = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
+const { decodeUser } = require("../authorization");
+const jwt = require("jsonwebtoken");
 
 const getBookList = (req, res) => {
   const { categoryId, isNew, limit, pages } = req.query;
@@ -41,28 +43,45 @@ const getBookList = (req, res) => {
 
 const getBook = (req, res) => {
   const { bookId } = req.params;
-  const { userId } = req.body;
-  const sql = `SELECT *, 
-  (SELECT name FROM categories WHERE id = books.category_id) AS category_name,
-  (SELECT count(*) FROM likes WHERE books.id = liked_book_id) AS likes,
-  (SELECT EXISTS (SELECT * FROM likes WHERE user_id = ? AND liked_book_id = ?)) AS is_like
-  FROM books WHERE books.id = ?`;
-  const values = [userId, bookId, bookId];
+  const userId = decodeUser(req)?.userId;
 
-  mariadb.query(sql, values, (err, results) => {
-    if (err) {
-      console.log(err);
-      return res.status(StatusCodes.BAD_REQUEST).end();
+  if (userId instanceof jwt.TokenExpiredError) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      message: "로그인 세션 만료됨.",
+    });
+  } else if (userId instanceof jwt.JsonWebTokenError) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: "토큰이 이상합니다. 확인해주세요",
+    });
+  } else {
+    let sql = `SELECT *, 
+    (SELECT name FROM categories WHERE id = books.category_id) AS category_name,
+    (SELECT count(*) FROM likes WHERE books.id = liked_book_id) AS likes`;
+    let values = [];
+
+    if (userId) {
+      sql += `, (SELECT EXISTS (SELECT * FROM likes WHERE user_id = ? AND liked_book_id = ?)) AS is_like`;
+      values = [userId, bookId];
     }
 
-    const book = results[0];
+    sql += ` FROM books WHERE books.id = ?`;
+    values.push(bookId);
 
-    if (book) {
-      return res.status(200).json(book);
-    }
+    return mariadb.query(sql, values, (err, results) => {
+      if (err) {
+        console.log(err);
+        return res.status(StatusCodes.BAD_REQUEST).end();
+      }
 
-    res.status(StatusCodes.NOT_FOUND).end();
-  });
+      const book = results[0];
+
+      if (book) {
+        return res.status(200).json(book);
+      }
+
+      res.status(StatusCodes.NOT_FOUND).end();
+    });
+  }
 };
 
 module.exports = { getBookList, getBook };
