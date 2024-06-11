@@ -1,0 +1,28 @@
+.container-price input::-webkit-inner-spin-button {
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+}
+/* https://codiving.kr/58 */
+.container-price input {
+  text-align: right;
+}
+
+/* https://hasudoki.tistory.com/entry/input-image-%EB%93%B1%EC%97%90%EC%84%9C-before-%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%A0-%EC%88%98-%EC%97%86%EB%8A%94-%EC%9D%B4%EC%9C%A0 */
+.container-price::after {
+  content: "원";
+}
+
+.v-none {
+  display: none;
+}
+
+.current-asset-input {
+  /* https://hianna.tistory.com/813 */
+  border-width: 0px;
+}
+
+.current-asset-input:focus {
+  outline: none;
+  background-color: gainsboro;
+}

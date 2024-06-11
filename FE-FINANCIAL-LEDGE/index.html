@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/index.css" />
+    <title>가계부</title>
+  </head>
+  <body>
+    <h1>가계부</h1>
+    <div class="current-asset">
+      <div class="current-asset-row container-price">
+        <label class="current-asset-label">현재 자산</label>
+        <input
+          class="current-asset-input"
+          type="number"
+          id="current-asset-input"
+          placeholder="현재 자산을 등록해주세요"
+          min="0"
+        />
+      </div>
+      <button class="current-asset-button v-none">현재 자산 등록</button>
+    </div>
+    <div class="add-item v-none">
+      <button class="add-item-button">소비내역 작성하기</button>
+    </div>
+    <div class="add-item-detail v-none">
+      <h3>소비내역 작성하기</h3>
+      <div class="item-detail">
+        <label class="category-label">카테고리</label>
+        <input
+          class="detail-input"
+          type="text"
+          id="category-input"
+          placeholder="카테고리를 선택해주세요"
+        />
+      </div>
+      <div class="item-detail container-price">
+        <label class="amount-label">지출 금액</label>
+        <input
+          class="detail-input"
+          type="number"
+          id="amount-input"
+          placeholder="지출금액을 입력해주세요"
+          min="0"
+        />
+        <!-- <p>원</p> -->
+      </div>
+      <div class="item-detail">
+        <label class="description-label">내용</label>
+        <input
+          class="detail-input"
+          type="text"
+          id="description-input"
+          placeholder="내용을 입력해주세요"
+        />
+      </div>
+      <button class="add-item-detail-button">등록하기</button>
+    </div>
+    <div class="history"></div>
+    <script src="./js/index.js" type="module" />
+  </body>
+</html>
