@@ -6,6 +6,7 @@ import FuncCom from "./components/FuncCom";
 import TodoList from "./components/TodoList";
 import Timer from "./components/Timer";
 import Clock from "./components/Clock";
+import Props from "./components/Props";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
       <TodoList></TodoList>
       <Timer></Timer>
       <Clock></Clock>
+      <Props weather="sunny">Weather Forecast</Props>
     </div>
   );
 }

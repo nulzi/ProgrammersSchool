@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "react-bootstrap";
+import DetailModal from "./DetailModal";
 
 type Todo = {
   id: number;
@@ -56,13 +57,13 @@ const TodoList: React.FC = () => {
             style={{ marginRight: "10px" }}
             onChange={(e) => setNewTodo(e.target.value)}
           />
-          <button
+          <Button
             onClick={() => {
               addTodo();
             }}
           >
             Add
-          </button>
+          </Button>
         </div>
         <ul className="board">
           {todos.map((todo) => (
@@ -87,6 +88,11 @@ const TodoList: React.FC = () => {
             </li>
           ))}
         </ul>
+        <DetailModal
+          isOpen={showDetail}
+          todo={selectedTodo}
+          handleClose={handleCloseDetail}
+        ></DetailModal>
       </div>
     </>
   );
