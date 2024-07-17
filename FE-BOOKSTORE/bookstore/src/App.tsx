@@ -6,8 +6,6 @@ import { BookStoreThemeProvider } from "./context/themeContext";
 function App() {
   return (
     <BookStoreThemeProvider>
-      <ThemeSwitcher />
-      {/* <Layout children={<Home />} />; */}
       <Layout>
         <Home />
       </Layout>
