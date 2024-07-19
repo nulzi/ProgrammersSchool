@@ -38,7 +38,7 @@ const getBookList = (req, res) => {
     if (results[0].length && results[1].length) {
       return res.status(StatusCodes.OK).json({
         books: results[0],
-        pagenation: {
+        pagination: {
           total_page: Math.ceil(results[1][0]["count(*)"] / limit),
           current_page: parseInt(currentPage),
         },
