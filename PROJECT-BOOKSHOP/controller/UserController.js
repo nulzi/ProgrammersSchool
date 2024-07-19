@@ -51,9 +51,9 @@ const login = (req, res) => {
         httpOnly: true,
       });
 
-      return res.status(StatusCodes.OK).json({
-        email: loginUser.email,
-      });
+      return res
+        .status(StatusCodes.OK)
+        .json({ ...results[0], token: token, email: loginUser.email });
     }
 
     res.status(StatusCodes.UNAUTHORIZED).json({
