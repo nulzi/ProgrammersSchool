@@ -8,3 +8,11 @@ export interface Order {
   totalQuantity: number;
   totalPrice: number;
 }
+
+export interface OrderSheet {
+  basketItemIds: number[];
+  totalPrice: number;
+  totalQuantity: number;
+  firstBookTitle: string;
+  delivery: { address: string; receiver: string; ph_num: string };
+}

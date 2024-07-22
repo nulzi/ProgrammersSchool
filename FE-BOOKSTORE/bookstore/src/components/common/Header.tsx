@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import logo from "../../assets/images/logo.png";
-import { FaRegUser, FaSignInAlt } from "react-icons/fa";
+import { FaRegUser, FaShoppingBasket, FaSignInAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useCategory } from "../../hooks/useCategory";
 import { useAuthStore } from "../../store/authStore";
@@ -55,16 +55,13 @@ const Header = () => {
         {isloggedIn ? (
           <ul>
             <li>
-              <Link to="/cart">
-                <FaSignInAlt />
+              <Link to="/basket">
+                <FaShoppingBasket />
                 장바구니
               </Link>
             </li>
             <li>
-              <Link to="/orderlist">
-                <FaSignInAlt />
-                주문내역
-              </Link>
+              <Link to="/orderlist">주문내역</Link>
             </li>
             <li>
               <button onClick={storeLogout}>로그아웃</button>

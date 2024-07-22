@@ -1,6 +1,6 @@
-export interface Cart {
+export interface Basket {
   id: number;
-  bookId: number;
+  book_id: number;
   title: string;
   summary: string;
   quantity: number;
