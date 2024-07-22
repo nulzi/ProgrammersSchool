@@ -17,5 +17,5 @@ export interface Book {
 }
 
 export interface BookDetail extends Book {
-  liked: boolean;
+  is_like: boolean;
 }
