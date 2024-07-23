@@ -125,6 +125,7 @@ const getOrderList = (req, res) => {
 };
 
 const getOrderDetail = (req, res) => {
+  console.log("getOrderDetail");
   const { orderId } = req.params;
   const user = decodeUser(req);
 

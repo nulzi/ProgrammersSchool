@@ -10,6 +10,6 @@ router.use(express.json());
 // 회원가입
 router.route("/").post(order).get(getOrderList);
 
-router.put("/:orderId", getOrderDetail);
+router.get("/:orderId", getOrderDetail);
 
 module.exports = router;

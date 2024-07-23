@@ -27,9 +27,8 @@ const Pagination = ({ pagination }: Props) => {
           {Array(total_page)
             .fill(0)
             .map((_, i) => (
-              <li>
+              <li key={i}>
                 <Button
-                  key={i}
                   size="small"
                   scheme={current_page === i + 1 ? "primary" : "normal"}
                   onClick={() => handleClickPage(i + 1)}
