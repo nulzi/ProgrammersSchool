@@ -61,7 +61,7 @@ const Header = () => {
               </Link>
             </li>
             <li>
-              <Link to="/orderlist">주문내역</Link>
+              <Link to="/order">주문내역</Link>
             </li>
             <li>
               <button onClick={storeLogout}>로그아웃</button>

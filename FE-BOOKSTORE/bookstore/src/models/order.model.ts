@@ -14,5 +14,11 @@ export interface OrderSheet {
   totalPrice: number;
   totalQuantity: number;
   firstBookTitle: string;
-  delivery: { address: string; receiver: string; ph_num: string };
+  delivery: Delivery;
+}
+
+export interface Delivery {
+  address: string;
+  receiver: string;
+  ph_num: string;
 }
