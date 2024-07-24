@@ -2,18 +2,13 @@ import React from "react";
 import Title from "../components/common/Title";
 import InputText from "../components/common/InputText";
 import Button from "../components/common/Button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { login } from "../api/auth.api";
-import { useAlert } from "../hooks/useAlert";
 import { AuthProps, SignupStyle } from "./Signup";
-import { useAuthStore } from "../store/authStore";
+import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
-  const navigate = useNavigate();
-  const { showAlert } = useAlert();
-
-  const { isloggedIn, storeLogin, storeLogout } = useAuthStore();
+  const { userLogin } = useAuth();
 
   const {
     register,
@@ -22,16 +17,7 @@ const Login = () => {
   } = useForm<AuthProps>();
 
   const onSubmit = (data: AuthProps) => {
-    login(data).then(
-      (res) => {
-        storeLogin(res.token);
-        showAlert("로그인이 완료되었습니다.");
-        navigate("/");
-      },
-      (error) => {
-        showAlert("로그인에 실패했습니다.");
-      }
-    );
+    userLogin(data);
   };
 
   return (
