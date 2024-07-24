@@ -57,8 +57,9 @@ const OrderList = () => {
                           order.detail.map((item) => (
                             <li key={item.book_id}>
                               <div>
-                                <span>{item.book_id}</span>
+                                <span>{item.title}</span>
                                 <span>{item.author}</span>
+                                <span>{item.quantity}권</span>
                                 <span>{formatNumber(item.price)}원</span>
                               </div>
                             </li>

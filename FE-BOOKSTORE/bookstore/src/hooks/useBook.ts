@@ -36,7 +36,7 @@ export const useBook = (bookId: string | undefined) => {
       });
     }
   };
-  const addToCart = (quantity: number) => {
+  const addToBasket = (quantity: number) => {
     if (!book) return;
 
     addCart({
@@ -59,5 +59,5 @@ export const useBook = (bookId: string | undefined) => {
     });
   }, [bookId]);
 
-  return { book, likeToggle, cardAdded, addToCart };
+  return { book, likeToggle, cardAdded, addToBasket };
 };

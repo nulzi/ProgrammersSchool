@@ -12,7 +12,7 @@ interface Props {
 
 const AddToBasket = ({ book }: Props) => {
   const [quantity, setQuantity] = useState<number>(1);
-  const { cardAdded, addToCart } = useBook(book.id.toString());
+  const { cardAdded, addToBasket } = useBook(book.id.toString());
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuantity(Number(e.target.value));
@@ -43,13 +43,13 @@ const AddToBasket = ({ book }: Props) => {
       <Button
         size="medium"
         scheme="primary"
-        onClick={() => addToCart(quantity)}
+        onClick={() => addToBasket(quantity)}
       >
         장바구니 담기
       </Button>
       <div className="added">
         <p>장바구니에 추가되었습니다.</p>
-        <Link to="/cart">장바구니로 이동</Link>
+        <Link to="/basket">장바구니로 이동</Link>
       </div>
     </AddToBasketStyle>
   );
