@@ -12,7 +12,7 @@ interface Props {
 
 const AddToBasket = ({ book }: Props) => {
   const [quantity, setQuantity] = useState<number>(1);
-  const { cardAdded, addToBasket } = useBook(book.id.toString());
+  const { basketAdded, addToBasket } = useBook(book.id.toString());
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuantity(Number(e.target.value));
@@ -26,7 +26,7 @@ const AddToBasket = ({ book }: Props) => {
   };
 
   return (
-    <AddToBasketStyle $added={cardAdded}>
+    <AddToBasketStyle $added={basketAdded}>
       <div>
         <InputText
           inputType="number"
