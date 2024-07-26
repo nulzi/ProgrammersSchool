@@ -34,3 +34,9 @@ export const addReview = http.post(
     );
   }
 );
+
+export const reviewForMain = http.get("http://localhost:3000/reviews", () => {
+  return HttpResponse.json(mockReviewData, {
+    status: 200,
+  });
+});

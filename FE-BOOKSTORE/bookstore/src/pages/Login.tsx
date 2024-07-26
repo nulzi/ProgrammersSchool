@@ -30,6 +30,7 @@ const Login = () => {
               placeholder="이메일"
               inputType="email"
               {...register("email", { required: true })}
+              inputMode="email"
               // value={email}
               // onChange={(e) => setEmail(e.target.value)}
             />
@@ -42,6 +43,7 @@ const Login = () => {
               placeholder="비밀번호"
               inputType="password"
               {...register("password", { required: true })}
+              inputMode="text"
               // value={password}
               // onChange={(e) => setPassword(e.target.value)}
             />
